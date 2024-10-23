@@ -1,0 +1,7 @@
+curl --location 'http://localhost:3000/synth-data/send-uml' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "umlCode": "@startuml class RailBitLedSignalSchema { +signalName: string <<PK>> +yellowCurrent: string +doubleYellowCurrent: string +redCurrent: string +greenCurrent: string +yellowVoltage: string +redVoltage: string +greenVoltage: string +doubleYellowVoltage: string +purge_id: string } @enduml @startuml class TrackCircuit { +gearName: string <<PK>> +choke: string +date: string +energization: string +trpOutdoor: string +chargerCurrent: string +feedCurrent: string +chargerOutput: string +chargerInput: string +relayVoltage: string +lastUpdate: string +trackStatus: string +feedVoltage: string +helayRoom: string +relayCurrent: string +chargerStatus: string +purge_id: string } @enduml @startuml class PointMachine { +pointMachineName: string <<PK>> +timeStamp: string +operatingCurrent: string +reverseOperatingVoltage: string +operatingTime: string +normalOperatingVoltage: string +peakCurrent: string +direction: string +purge_id: string } @enduml @startuml class PMAvgWorkingDuration { +GearName: string <<PK>> +purge_id: string +AvgDuration: string +TotalNoofOperation: string +TotalDuration: string } @enduml @startuml class LCGateSchema { +timeStamp: string <<PK>> +operatingCurrent: string +operatingTime: string +voltageOperating: string +peakCurrent: string +purge_id: string } @enduml",
+    "entities": 21,
+    "prompt": ""
+}'
