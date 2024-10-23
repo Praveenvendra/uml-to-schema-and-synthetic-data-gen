@@ -11,7 +11,7 @@ router.get("/test", (req, res) => {
   res.end("Node JS service working fine!");
 });
 
-router.post("/send-uml", async (req, res) => {
+router.post("synth-data/send-uml", async (req, res) => {
   const data = req.body?.umlCode;
   console.log("Request received: UML to Payload");
   const fileId = await umlToPayload(data);
