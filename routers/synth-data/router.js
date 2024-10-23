@@ -7,11 +7,7 @@ import payLoadToPrompt from "../../utils/synth-data/payload-to-prompt.js";
 const router = Router();
 router.use(e.json());
 
-router.get("/test", (req, res) => {
-  res.end("Node JS service working fine!");
-});
-
-router.post("synth-data/send-uml", async (req, res) => {
+router.post("/synth-data/send-uml", async (req, res) => {
   const data = req.body?.umlCode;
   console.log("Request received: UML to Payload");
   const fileId = await umlToPayload(data);
@@ -25,7 +21,9 @@ router.post("synth-data/send-uml", async (req, res) => {
   }
 
   if (!fileId) {
-    res.end("Fild ID not generated for UML to Payload, Please Try again");
+    res
+      .end("Fild ID not generated for UML to Payload, Please Try again")
+      .status(500);
   }
 
   if (relationshipsData) {
@@ -34,6 +32,15 @@ router.post("synth-data/send-uml", async (req, res) => {
     console.log("Response received: Synth Data");
   }
 
+  if (!relationshipsData) {
+    res
+      .end("Generation of relationship among entities failed, Please Try again")
+      .status(500);
+  }
+
+  if (synthData?.errorMessage) {
+    res.status(500).json(synthData);
+  }
   res.json(synthData);
 });
 

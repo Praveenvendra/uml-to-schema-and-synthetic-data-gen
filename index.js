@@ -6,6 +6,10 @@ const PORT = 3000;
 
 app.use(router);
 
+app.get("/test", (req, res) => {
+  res.end("Node JS service working fine!");
+});
+
 app.listen(PORT, () => {
-  "Node JS service started";
+  console.log("Node JS service started");
 });

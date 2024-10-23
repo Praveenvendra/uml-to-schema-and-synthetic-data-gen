@@ -17,6 +17,12 @@ export default async function synthDataGen(relationships = {}) {
     return response.data;
   } catch (error) {
     console.error("synth data gen error: ", error);
-    return error?.data?.message;
+    return {
+      errorMessage: error?.response?.data?.message,
+      errorStack: {
+        validationError: error?.response?.data?.validationErrors,
+        stackDetails: error?.response?.data?.stack,
+      },
+    };
   }
 }
