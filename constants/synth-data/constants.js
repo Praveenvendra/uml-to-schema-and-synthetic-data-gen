@@ -7,6 +7,7 @@ const CONSTANTS = {
   ASSISTANT_ID_PAYLOAD_TO_PROMPT: "asst_B6ib0zwmwUWFQi5tAyBtoago",
   TOKEN_OPEN_AI:
     "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",
+  RETRIES: 3,
 };
 
 export default CONSTANTS;
