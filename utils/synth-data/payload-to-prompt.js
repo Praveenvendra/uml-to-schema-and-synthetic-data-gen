@@ -1,5 +1,7 @@
 import axios from "axios";
-import CONSTANTS from "../../constants/synth-data/constants.js";
+import CONSTANT from "../../constants/synth-data/constants.js";
+
+const {CONSTANTS} = CONSTANT;
 
 export default async function payLoadToPrompt(fileId = "") {
   const url = `${CONSTANTS.BASE_URL}/${CONSTANTS.SERVICE}/downloadFile?file_id=${fileId}`;

@@ -3,7 +3,10 @@ import { Router } from "express";
 import umlToPayload from "../../utils/synth-data/uml-to-payload.js";
 import synthDataGen from "../../utils/synth-data/synth-data-gen.js";
 import payLoadToPrompt from "../../utils/synth-data/payload-to-prompt.js";
-import CONSTANTS from "../../constants/synth-data/constants.js";
+import { convertUml, getResults } from "../../utils/synth-data/uml-to-schema.js";
+// import functions from "../../utils/synth-data/uml-to-schema.js";
+
+// const {convertUml,getResults} = functions;
 
 const router = Router();
 router.use(e.json());
@@ -82,5 +85,9 @@ router.post("/synth-data/send-uml", async (req, res) => {
   }
   !processFailed && res.json(synthData);
 });
+
+router.post("/uml-to-schema",convertUml);
+
+
 
 export default router;

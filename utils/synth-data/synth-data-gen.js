@@ -1,6 +1,7 @@
 import axios from "axios";
-import CONSTANTS from "../../constants/synth-data/constants.js";
+import CONSTANT from "../../constants/synth-data/constants.js";
 
+const {CONSTANTS} = CONSTANT;
 export default async function synthDataGen(relationships = {}) {
   const url = `${CONSTANTS.BASE_URL}/${CONSTANTS.SERVICE_SYNTH_DATA}/api/v1/generate/multi-table`;
 

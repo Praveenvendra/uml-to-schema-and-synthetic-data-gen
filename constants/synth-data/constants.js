@@ -10,4 +10,16 @@ const CONSTANTS = {
   RETRIES: 3,
 };
 
-export default CONSTANTS;
+const UMLTOSCHEMACONSTANTS = {
+  BASE_URL: "https://ig.gov-cloud.ai",  
+  SERVICE: "pi-entity-service",
+  SERVICE_SYNTH_DATA: "UML-TO-SCHEMA"
+};
+
+let memoryStore = {
+
+  results: [],
+  schemas: {}
+};
+
+export default {CONSTANTS,UMLTOSCHEMACONSTANTS, memoryStore}
