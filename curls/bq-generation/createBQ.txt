@@ -1,0 +1,8 @@
+curl --location 'http://localhost:3000/create-bq' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer token' \
+--data '{
+    "queryName": "test_bq_2",
+    "query": "SELECT ap.`entity.partner_name` AS `partner_name`, ap.`entity.partnership_status` AS `status`, ap.`entity.overall_performance_score` AS `performance_score`, SUM(fs.`entity.total_flights`) AS `total_flights` FROM t_6707d28fb4751123fdc59270_t ap JOIN t_6707d28fb4751123fdc59272_t fs ON ap.`entity.airline_partner_id` = fs.`entity.airline_partner_id` GROUP BY ap.`entity.partner_name`, ap.`entity.partnership_status`, ap.`entity.overall_performance_score`;",
+    "universeId": "66e2f144902a0633d63e2a9d"
+}'
