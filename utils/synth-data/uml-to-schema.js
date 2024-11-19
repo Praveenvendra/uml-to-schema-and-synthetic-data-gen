@@ -1,9 +1,121 @@
 import axios from 'axios';
 import constants from '../../constants/synth-data/constants.js';
-
 const { UMLTOSCHEMACONSTANTS, memoryStore } = constants;
 
-// Utility function to parse individual attributes from entity block with support for parent-child relationships
+// Function to fetch file data using the file_id
+async function fetchFileData(fileId) {
+    try {
+        const downloadEndpoint = `https://ig.gov-cloud.ai/mobius-gpt-service/downloadFile?file_id=${fileId}`;
+        const response = await axios.get(downloadEndpoint, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        // Ensure the response is in JSON format
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching file data:', error.message);
+        throw error;
+    }
+}
+
+function mapEntitiesWithSchemaIds(fileData, schemasAndTheirIds) {
+    const hierarchicalMapping = {
+        primary: {},
+        secondary: {},
+        tertiary: {},
+        quaternary: {},
+    };
+
+    const keyMapping = {
+        primary_entity: 'primary',
+        secondary_entities: 'secondary',
+        tertiary_entities: 'tertiary',
+        quaternary_entities: 'quaternary',
+    };
+
+    // Iterate through fileData and map keys to hierarchicalMapping
+    Object.entries(fileData).forEach(([level, entities]) => {
+        console.log(`Processing level: ${level}`);
+        const mappedLevel = keyMapping[level]; // Map to hierarchical level
+        console.log(`Mapped level: ${mappedLevel}`);
+
+        if (mappedLevel && Array.isArray(entities)) {
+            entities.forEach((entityName) => {
+                console.log(`Processing entity: ${entityName}`);
+
+                let schemaKey = null;
+
+                // Search schemasAndTheirIds for a match
+                for (const key in schemasAndTheirIds) {
+                    console.log(`key ${key}`)
+                    // Match either exact name or name preceded by a numeric prefix
+                    const regex = new RegExp(`(^\\d+_)?${entityName}$`); // Match with or without prefix
+                    if (regex.test(key)) {
+                        schemaKey = key;
+                        break;
+                    }
+                }
+
+                if (schemaKey) {
+                    const schemaId = schemasAndTheirIds[schemaKey];
+                    hierarchicalMapping[mappedLevel][entityName] = schemaId;
+                } else {
+                    console.warn(`Schema ID not found for entity "${entityName}".`);
+                }
+            });
+        } else {
+            console.warn(`Invalid or unexpected hierarchical level: ${level}`);
+        }
+    });
+
+    return hierarchicalMapping;
+}
+
+async function getHierarchicalSegregation(umlText, schemasAndTheirIds) {
+    try {
+        const payload = {
+            input: umlText + " Give me the hierarchical segregation of entities as output in a file.",
+            user_id: "Gaian@123",
+            assistant_id: "asst_P3T5tJjC1QZCxzJfxIZeTGCw",
+            model: "",
+            uml_text: umlText,
+        };
+
+        const apiEndpoint = 'https://ig.gov-cloud.ai/mobius-gpt-service/response';
+        const response = await axios.post(apiEndpoint, payload, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        const { messages } = response.data;
+
+        if (messages && messages.length > 0) {
+            const fileId = messages[0]?.file_id;
+            if (fileId) {
+                console.log('file_id found:', fileId);
+
+                // Fetch data using the file_id
+                const fileData = await fetchFileData(fileId);
+                console.log('File data:', fileData);
+
+                // Map schema IDs to hierarchical entities
+                const hierarchicalMapping = mapEntitiesWithSchemaIds(fileData, schemasAndTheirIds);
+                console.log('Hierarchical Mapping:', hierarchicalMapping);
+
+                return {
+                    file_id: fileId,
+                    hierarchicalMapping,
+                    downloadLink: messages[0]?.content.match(/\[(.*?)\]\((.*?)\)/)?.[2] || '',
+                };
+            }
+        }
+
+        console.log('No file_id found in the response.');
+        return null;
+    } catch (error) {
+        console.error('Error fetching hierarchical segregation:', error.message);
+        throw error;
+    }
+}
 function parseAttributes(entityBlock) {
     const attributes = [];
     const lines = entityBlock.match(/[\+\-\s]*\w+\s*:\s*\w+(\s*<<PK>>|\s*{PK})?(\s*<<FK>>|\s*{FK})?/g);
@@ -69,6 +181,7 @@ function parseEntityBlock(entityBlock) {
 
 // Main function to convert UML text to schema payload with robust error handling
 export function umlToSchema(umlText, universeId) {
+    console.log(`umlText_umlToSchema ${umlText}`)
     const entityBlocks = umlText
         .split(/(?=class\s+|\bentity\s+)/)
         .map(block => block.trim())
@@ -94,8 +207,6 @@ export function umlToSchema(umlText, universeId) {
       visibility: "PUBLIC",
     }));
 }
-
-
 
 // Function to create schema on the server, with error handling for existing schema conflicts
 async function createSchema(schemaObject, token) {
@@ -128,45 +239,9 @@ async function createSchema(schemaObject, token) {
     }
 }
 
-// Controller to convert UML to schema and handle schema creation
-// export async function convertUml(req, res) {
-//     const { umlText } = req.body;
-//     const token = req.headers['token'];
-//     const universeId = req.query;
-
-//     if (!umlText) {
-//         return res.status(400).json({ error: 'UML text is required.' });
-//     }
-
-//     try {
-//         const schema = umlToSchema(umlText, universeId);
-
-//         const results = await Promise.allSettled(
-//             schema.map(async (schemaObject) => {
-//                 const result = await createSchema(schemaObject, token);
-//                 return result;
-//             })
-//         );
-
-//         memoryStore.results = results.map((result, index) => ({
-//             status: result.status === 'fulfilled' ? 'success' : 'failed',
-//             name: schema[index].entityName,
-//             schemaId: result.value?.schemaId,
-//             reason: result.reason
-//         }));
-
-//         res.json({ status: 'completed', results: memoryStore.results });
-//     } catch (error) {
-//         res.status(500).json({
-//             error: 'An error occurred while processing the UML.',
-//             details: error.message || error.response?.data || 'Unknown error'
-//         });
-//     }
-// }
-
-// Controller to convert UML to schema, create schemas, and handle conflicts
 export async function convertUml(req, res) {
     const { umlText } = req.body;
+    console.log(`umlText_convertUml ${umlText}`);
     const token = req.headers['token'];
     const universeId = req.query;
 
@@ -175,45 +250,36 @@ export async function convertUml(req, res) {
     }
 
     try {
-        // Generate schema payload from the UML text
         const schemaPayloads = umlToSchema(umlText, universeId);
         const classesCount = schemaPayloads.length;
 
         const schemasCreationStatus = [];
         const schemasAndTheirIds = {};
 
-        // Function to add timestamp prefix to schema name
-        const addTimestampPrefix = (name) => {
-            const timestamp = Date.now();
-            return `${timestamp}_${name}`;
-        };
+        const addTimestampPrefix = (name) => `${Date.now()}_${name}`;
 
-        // Function to create a schema with conflict handling
         async function createSchemaWithRetry(schemaObject, token) {
             let response;
             let schemaName = schemaObject.entityName;
-            
-            // Attempt to create schema
+
             try {
                 response = await createSchema(schemaObject, token);
-                
+
                 if (response.status === 'conflict') {
-                    // Schema conflict, retry with timestamp-prefixed name
                     schemaObject.entityName = addTimestampPrefix(schemaName);
+                    console.log(`schemaObject.entityName:${schemaObject.entityName}`)
                     response = await createSchema(schemaObject, token);
                 }
-                
+
                 return response;
             } catch (error) {
                 return { status: 'failed', name: schemaName, error: error.message };
             }
         }
 
-        // Process each schema payload and create schemas
         for (const schemaObject of schemaPayloads) {
             const result = await createSchemaWithRetry(schemaObject, token);
 
-            // Store creation status
             if (result.status === 'success') {
                 schemasCreationStatus.push({
                     schemaName: result.name,
@@ -230,21 +296,21 @@ export async function convertUml(req, res) {
             }
         }
 
-        // Prepare the response with the required structure
+        const hierarchicalSegregation = await getHierarchicalSegregation(umlText, schemasAndTheirIds);
+
         res.json({
             classesCount,
             schemasCreationStatus,
-            schemasAndTheirIds
+            schemasAndTheirIds,
+            hierarchicalSegregation: hierarchicalSegregation?.hierarchicalMapping || {},
         });
-
     } catch (error) {
         res.status(500).json({
             error: 'An error occurred while processing the UML.',
-            details: error.message || error.response?.data || 'Unknown error'
+            details: error.message || error.response?.data || 'Unknown error',
         });
     }
 }
-
 // Controller to retrieve in-memory results
 export function getResults(req, res) {
     res.json({ results: memoryStore.results });
