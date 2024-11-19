@@ -27,12 +27,12 @@ bqRouter.post('/create-bq', async (req, res) => {
 });
 
 bqRouter.post('/generate-bqs', async (req, res) => {
-	let { umlText } = req.body;
+	let { umlText, schemaIds } = req.body;
 	// create schemas from uml text
 	// let umlToSchemaResponse = await umlToSchema(umlText);
 	// let schemaIds = umlToSchemaResponse.json();
 	// get bq definitions
-	let umlToPossibleQueries = await umlToBQ(umlText);
+	let umlToPossibleQueries = await umlToBQ(umlText, schemaIds);
 	res.status(200).json(umlToPossibleQueries);
 });
 
