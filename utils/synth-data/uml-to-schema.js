@@ -35,19 +35,16 @@ function mapEntitiesWithSchemaIds(fileData, schemasAndTheirIds) {
 
     // Iterate through fileData and map keys to hierarchicalMapping
     Object.entries(fileData).forEach(([level, entities]) => {
-        console.log(`Processing level: ${level}`);
+        // console.log(`Processing level: ${level}`);
         const mappedLevel = keyMapping[level]; // Map to hierarchical level
-        console.log(`Mapped level: ${mappedLevel}`);
+        // console.log(`Mapped level: ${mappedLevel}`);
 
         if (mappedLevel && Array.isArray(entities)) {
             entities.forEach((entityName) => {
-                console.log(`Processing entity: ${entityName}`);
-
                 let schemaKey = null;
 
                 // Search schemasAndTheirIds for a match
                 for (const key in schemasAndTheirIds) {
-                    console.log(`key ${key}`)
                     // Match either exact name or name preceded by a numeric prefix
                     const regex = new RegExp(`(^\\d+_)?${entityName}$`); // Match with or without prefix
                     if (regex.test(key)) {
@@ -99,7 +96,7 @@ async function getHierarchicalSegregation(umlText, schemasAndTheirIds) {
 
                 // Map schema IDs to hierarchical entities
                 const hierarchicalMapping = mapEntitiesWithSchemaIds(fileData, schemasAndTheirIds);
-                console.log('Hierarchical Mapping:', hierarchicalMapping);
+                // console.log('Hierarchical Mapping:', hierarchicalMapping);
 
                 return {
                     file_id: fileId,
@@ -181,7 +178,7 @@ function parseEntityBlock(entityBlock) {
 
 // Main function to convert UML text to schema payload with robust error handling
 export function umlToSchema(umlText, universeId) {
-    console.log(`umlText_umlToSchema ${umlText}`)
+    // console.log(`umlText_umlToSchema ${umlText}`)
     const entityBlocks = umlText
         .split(/(?=class\s+|\bentity\s+)/)
         .map(block => block.trim())
@@ -241,7 +238,7 @@ async function createSchema(schemaObject, token) {
 
 export async function convertUml(req, res) {
     const { umlText } = req.body;
-    console.log(`umlText_convertUml ${umlText}`);
+    // console.log(`umlText_convertUml ${umlText}`);
     const token = req.headers['token'];
     const universeId = req.query;
 
@@ -267,7 +264,7 @@ export async function convertUml(req, res) {
 
                 if (response.status === 'conflict') {
                     schemaObject.entityName = addTimestampPrefix(schemaName);
-                    console.log(`schemaObject.entityName:${schemaObject.entityName}`)
+
                     response = await createSchema(schemaObject, token);
                 }
 
