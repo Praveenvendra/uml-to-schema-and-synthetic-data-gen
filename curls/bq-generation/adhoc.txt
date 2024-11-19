@@ -1,0 +1,6 @@
+curl --location 'http://localhost:3000/adhoc' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer token' \
+--data '{
+    "query": "WITH ProductYears AS ( SELECT EXTRACT(YEAR FROM TIMESTAMP(`entity.CreationTime`)) AS Year FROM t_6734dcd5c27e7f768d5fc7df_t ), YearlyCounts AS ( SELECT Year, COUNT(*) AS ProductsCreated FROM ProductYears GROUP BY Year ), CumulativeCounts AS ( SELECT Year, SUM(ProductsCreated) OVER (ORDER BY Year) AS CumulativeProductCount FROM YearlyCounts ) SELECT Year, CumulativeProductCount FROM CumulativeCounts ORDER BY Year;"
+}'
