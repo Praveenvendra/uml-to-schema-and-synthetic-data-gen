@@ -9,8 +9,8 @@ export function removeDuplicatePurgeId (data) {
       delete temp["purgeId"]
   
       return temp
-    })
-    // 
+    });
+
   
     return processedData
   } 
