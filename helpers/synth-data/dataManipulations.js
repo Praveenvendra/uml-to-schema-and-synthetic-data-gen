@@ -10,6 +10,7 @@ export function removeDuplicatePurgeId (data) {
   
       return temp
     })
+    // 
   
     return processedData
   } 
