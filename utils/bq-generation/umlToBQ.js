@@ -74,7 +74,7 @@ export default async function umlToBQ(
 			bqs: bqDefinitions[Object.keys(bqDefinitions)[0]],
 		};
 	} catch (error) {
-		console.log('bq generation error: ', error.response.data);
+		console.log('bq generation error: ', error.response);
 		// console.log(error);
 	}
 }
