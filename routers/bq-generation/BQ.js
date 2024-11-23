@@ -5,6 +5,15 @@ import umlToBQ from '../../utils/bq-generation/umlToBQ.js';
 
 const bqRouter = Router();
 
+/**
+ * Endpoint to execute an ad-hoc query.
+ * @route POST /adhoc
+ * @param {Object} req - Express request object
+ * @param {string} req.body.query - SQL query to execute.
+ * @param {Object} req.headers.authorization - Bearer token for authentication.
+ * @param {Object} res - Express response object
+ * @returns {Object} - Response containing the status and query result.
+ */
 bqRouter.post('/adhoc', async (req, res) => {
 	let { query } = req.body;
 	// extract bearer token
@@ -13,6 +22,17 @@ bqRouter.post('/adhoc', async (req, res) => {
 	res.status(statusCode).json(data);
 });
 
+/**
+ * Endpoint to create a new BigQuery (BQ).
+ * @route POST /create-bq
+ * @param {Object} req - Express request object
+ * @param {string} req.body.query - SQL query to save.
+ * @param {string} req.body.queryName - Name for the query.
+ * @param {string} req.body.universeId - Identifier for the data universe.
+ * @param {Object} req.headers.authorization - Bearer token for authentication.
+ * @param {Object} res - Express response object
+ * @returns {Object} - Response containing the status and creation result.
+ */
 bqRouter.post('/create-bq', async (req, res) => {
 	let { query = '', queryName = '', universeId = '' } = req.body;
 	// extract bearer token
@@ -26,6 +46,17 @@ bqRouter.post('/create-bq', async (req, res) => {
 	res.status(statusCode).json(data);
 });
 
+/**
+ * Endpoint to generate multiple BigQueries (BQs) based on UML text and schema IDs.
+ * @route POST /generate-bqs
+ * @param {Object} req - Express request object
+ * @param {string} req.body.umlText - UML text defining the queries.
+ * @param {Array<string>} req.body.schemaIds - List of schema identifiers.
+ * @param {string} req.body.universeId - Identifier for the data universe.
+ * @param {Object} req.headers.authorization - Bearer token for authentication.
+ * @param {Object} res - Express response object
+ * @returns {Object} - Response containing the status and details of created queries.
+ */
 bqRouter.post('/generate-bqs', async (req, res) => {
 	let { umlText, schemaIds, universeId } = req.body;
 	let token = req.headers.authorization?.split('Bearer ')[1];
