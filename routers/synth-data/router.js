@@ -18,6 +18,7 @@ router.use(e.json());
 
 router.post("/synth-data/send-uml", async (req, res) => {
   const umlCode = req.body?.umlCode;
+  const apiKey = req.headers?.['api-key'];
   const umlEntities = umlCode?.split("class").length - 1;
   let entities = parseInt(req.body?.entities) || umlEntities;
 
@@ -72,7 +73,7 @@ router.post("/synth-data/send-uml", async (req, res) => {
 
   if (relationshipsData) {
     console.log("Request received: Synth Data");
-    synthData = await synthDataGen(relationshipsData);
+    synthData = await synthDataGen(relationshipsData,apiKey);
     console.log("Response received: Synth Data");
   }
 

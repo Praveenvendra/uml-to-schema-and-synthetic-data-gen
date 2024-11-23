@@ -17,8 +17,9 @@ routerSynthDataInsertion.post('/synth-data-insertion', async (req, res) => {
 			//process schema names from schemas and synth data for matching
 			let schemaNameInSynthDataProcessed = schemaName
 				.toLowerCase()
+				.replace(/^[0-9_]+/, '')
 				.replace('_', '');
-			let schemaNameInSchemasProcessed = value.toLowerCase().replace('_', '');
+			let schemaNameInSchemasProcessed = value.toLowerCase().replace('_', '').replace(/^[0-9_]+/, '');
 			if (schemaNameInSchemasProcessed === schemaNameInSynthDataProcessed) {
 				// extract schema ids
 				schemaId = schemas[value];
@@ -28,7 +29,7 @@ routerSynthDataInsertion.post('/synth-data-insertion', async (req, res) => {
 		// remove duplicate purge ids if present
 		let dataForInsertion = removeDuplicatePurgeId(schemaData);
 
-		if (schemaId && dataForInsertion) {
+		if (schemaId) {
 			const { id, statusCode, data } = await insertData(
 				schemaId,
 				dataForInsertion,

@@ -88,10 +88,10 @@ async function getHierarchicalSegregation(umlText, schemasAndTheirIds) {
         if (messages && messages.length > 0) {
             const fileId = messages[0]?.file_id;
             if (fileId) {
-                // console.log('file_id found:', fileId);
+                console.log('file_id found:', fileId);
 
                 // Fetch data using the file_id
-                // const fileData = await fetchFileData(fileId);
+                const fileData = await fetchFileData(fileId);
                 console.log('File data:', fileData);
 
                 // Map schema IDs to hierarchical entities
@@ -106,14 +106,17 @@ async function getHierarchicalSegregation(umlText, schemasAndTheirIds) {
             }
         }
 
-        // console.log('No file_id found in the response.');
+        console.log('No file_id found in the response.');
         return null;
     } catch (error) {
-        // console.error('Error fetching hierarchical segregation:', error.message);
+        console.error('Error fetching hierarchical segregation:', error.message);
         throw error;
     }
 }
+
 function parseAttributes(entityBlock) {
+
+    console.log("entityBlock : ", entityBlock);
     const attributes = [];
     const lines = entityBlock.match(/[\+\-\s]*\w+\s*:\s*\w+(\s*<<PK>>|\s*{PK})?(\s*<<FK>>|\s*{FK})?/g);
     
@@ -158,7 +161,8 @@ function parseAttributes(entityBlock) {
 
 // Function to parse entity block and handle variations in UML syntax
 function parseEntityBlock(entityBlock) {
-    const entityNameMatch = entityBlock.match(/class\s+(\w+)/);
+    // const entityNameMatch = entityBlock.match(/class\s+(\w+)/);
+    const entityNameMatch = entityBlock.match(/(?:class|entity)\s+(\w+)/i);
     const entityName = entityNameMatch ? entityNameMatch[1] : '';
     const attributes = parseAttributes(entityBlock);
     const primaryKey = attributes.find(attr => attr.required)?.name || '';
@@ -178,7 +182,6 @@ function parseEntityBlock(entityBlock) {
 
 // Main function to convert UML text to schema payload with robust error handling
 export function umlToSchema(umlText, universeId) {
-    // console.log(`umlText_umlToSchema ${umlText}`)
     const entityBlocks = umlText
         .split(/(?=class\s+|\bentity\s+)/)
         .map(block => block.trim())
@@ -187,7 +190,8 @@ export function umlToSchema(umlText, universeId) {
     const schemas = entityBlocks
         .map(parseEntityBlock)
         .filter(schema => schema !== null);
-
+        console.log("schemas : ", schemas);
+    // console.log("entityBlocks : ", entityBlocks )
     return schemas.map((schema) => ({
       entityName: schema.entityName,
       description: `This schema contains details for ${schema.description}`,
@@ -204,6 +208,8 @@ export function umlToSchema(umlText, universeId) {
       visibility: "PUBLIC",
     }));
 }
+
+
 
 // Function to create schema on the server, with error handling for existing schema conflicts
 async function createSchema(schemaObject, token) {
@@ -236,6 +242,43 @@ async function createSchema(schemaObject, token) {
     }
 }
 
+// Controller to convert UML to schema and handle schema creation
+// export async function convertUml(req, res) {
+//     const { umlText } = req.body;
+//     const token = req.headers['token'];
+//     const universeId = req.query;
+
+//     if (!umlText) {
+//         return res.status(400).json({ error: 'UML text is required.' });
+//     }
+
+//     try {
+//         const schema = umlToSchema(umlText, universeId);
+
+//         const results = await Promise.allSettled(
+//             schema.map(async (schemaObject) => {
+//                 const result = await createSchema(schemaObject, token);
+//                 return result;
+//             })
+//         );
+
+//         memoryStore.results = results.map((result, index) => ({
+//             status: result.status === 'fulfilled' ? 'success' : 'failed',
+//             name: schema[index].entityName,
+//             schemaId: result.value?.schemaId,
+//             reason: result.reason
+//         }));
+
+//         res.json({ status: 'completed', results: memoryStore.results });
+//     } catch (error) {
+//         res.status(500).json({
+//             error: 'An error occurred while processing the UML.',
+//             details: error.message || error.response?.data || 'Unknown error'
+//         });
+//     }
+// }
+
+// Controller to convert UML to schema, create schemas, and handle conflicts
 export async function convertUml(req, res) {
     const { umlText } = req.body;
     // console.log(`umlText_convertUml ${umlText}`);
@@ -248,6 +291,7 @@ export async function convertUml(req, res) {
 
     try {
         const schemaPayloads = umlToSchema(umlText, universeId);
+        // console.log("schemaPayloads : ",schemaPayloads);
         const classesCount = schemaPayloads.length;
 
         const schemasCreationStatus = [];
@@ -297,8 +341,10 @@ export async function convertUml(req, res) {
             }
         }
 
+        
+       console.log("schemaids : ",schemasAndTheirIds);
         const hierarchicalSegregation = await getHierarchicalSegregation(umlText, schemasAndTheirIds);
-
+      
         res.json({
             classesCount,
             schemasCreationStatus,

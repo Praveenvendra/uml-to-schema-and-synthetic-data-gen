@@ -2,13 +2,13 @@ import axios from "axios";
 import CONSTANT from "../../constants/synth-data/constants.js";
 
 const {CONSTANTS} = CONSTANT;
-export default async function synthDataGen(relationships = {}) {
+export default async function synthDataGen(relationships = {},apiKey) {
   const url = `${CONSTANTS.BASE_URL}/${CONSTANTS.SERVICE_SYNTH_DATA}/api/v1/generate/multi-table`;
 
   const requestHeaders = {
     headers: {
       "Content-Type": "application/json",
-      "api-key": `${CONSTANTS.TOKEN_OPEN_AI}`,
+      "api-key": apiKey,
     },
   };
   const requestBody = { ...relationships };

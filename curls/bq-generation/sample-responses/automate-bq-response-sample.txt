@@ -1,0 +1,142 @@
+[
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Operational Planning and Capacity Analysis",
+            "bqId": "6741dbf7fab8b975125212c9"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Scheduling System Summary",
+            "bqId": "6741dbf81f68c04a2cbdac82"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Operational Efficiency Evaluation",
+            "bqId": "6741dbf8fab8b975125212ca"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Risk Assessments Associated",
+            "bqId": "6741dbf81f68c04a2cbdac83"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Model Accuracy in Forecasting",
+            "bqId": "6741dbf8fab8b975125212cb"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Resource Allocation Approaches",
+            "bqId": "6741dbf81f68c04a2cbdac84"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Scalability Planning",
+            "bqId": "6741dbf8fab8b975125212cc"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Resource Utilization Rates",
+            "bqId": "6741dbf81f68c04a2cbdac85"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Flight Scheduling Software Usage",
+            "bqId": "6741dbf8fab8b975125212cd"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Employee Scheduling Details",
+            "bqId": "6741dbf91f68c04a2cbdac86"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Maintenance Scheduling Tracking",
+            "bqId": "6741dbf9fab8b975125212ce"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Conflict Resolution Mechanisms",
+            "bqId": "6741dbf91f68c04a2cbdac87"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Process Efficiency Score",
+            "bqId": "6741dbf9fab8b975125212cf"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Cost Efficiency Analysis",
+            "bqId": "6741dbf91f68c04a2cbdac88"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Industry Benchmarking",
+            "bqId": "6741dbf9fab8b975125212d0"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Performance Improvement Plans",
+            "bqId": "6741dbf91f68c04a2cbdac89"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Operational Risk Analysis",
+            "bqId": "6741dbf9fab8b975125212d1"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Contingency Plan Criteria",
+            "bqId": "6741dbfa1f68c04a2cbdac8a"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Business Continuity Strategies",
+            "bqId": "6741dbfafab8b975125212d2"
+        }
+    },
+    {
+        "statusCode": 201,
+        "data": {
+            "bqName": "Risk Mitigation Strategies",
+            "bqId": "6741dbfa1f68c04a2cbdac8b"
+        }
+    }
+]
