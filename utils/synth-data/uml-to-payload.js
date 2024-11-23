@@ -31,3 +31,82 @@ export default async function umlToPayload(
     return;
   }
 }
+
+
+
+export async function convertUml(req, res) {
+  const { umlText } = req.body;
+  const token = req.headers['token'];
+  const universeId = req.query;
+
+  if (!umlText) {
+      return res.status(400).json({ error: 'UML text is required.' });
+  }
+
+  try {
+      // Generate schema payload from the UML text
+      const schemaPayloads = umlToSchema(umlText, universeId);
+      const classesCount = schemaPayloads.length;
+
+      // Function to add a timestamp prefix to schema name
+      const addTimestampPrefix = (name) => {
+          const timestamp = Date.now();
+          return `${timestamp}_${name}`;
+      };
+
+      // Function to create a schema with conflict handling
+      async function createSchemaWithRetry(schemaObject) {
+          let schemaName = schemaObject.entityName;
+
+          try {
+              // Attempt to create schema
+              let response = await createSchema(schemaObject, token);
+              
+              if (response.status === 'conflict') {
+                  // Schema conflict, retry with a timestamp-prefixed name
+                  schemaObject.entityName = addTimestampPrefix(schemaName);
+                  response = await createSchema(schemaObject, token);
+              }
+
+              return { 
+                  status: 'success', 
+                  name: response.name, 
+                  schemaId: response.schemaId 
+              };
+          } catch (error) {
+              return { 
+                  status: 'failed', 
+                  name: schemaName, 
+                  errorMessage: error.message || 'Unknown error' 
+              };
+          }
+      }
+
+      // Process schemas in parallel
+      const results = await Promise.all(
+          schemaPayloads.map((schemaObject) => createSchemaWithRetry(schemaObject))
+      );
+
+      // Organize results into the required structure
+      const schemasAndTheirIds = {};
+      const schemasCreationStatus = results.map((result) => {
+          if (result.status === 'success') {
+              schemasAndTheirIds[result.name] = result.schemaId;
+          }
+
+          return result;
+      });
+
+      // Send response
+      res.json({
+          classesCount,
+          schemasAndTheirIds,
+      });
+  } catch (error) {
+      res.status(500).json({
+          error: 'An error occurred while processing the UML.',
+          details: error.message || error.response?.data || 'Unknown error'
+      });
+  }
+}
+

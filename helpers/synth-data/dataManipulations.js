@@ -5,7 +5,7 @@ export function removeDuplicatePurgeId (data) {
   
       let temp = {...instance}
       // temp.purge_id = purgeId
-  
+      //sample changes
       delete temp["purgeId"]
   
       return temp

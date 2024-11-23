@@ -67,37 +67,6 @@ function parseEntityBlock(entityBlock) {
     };
 }
 
-// Main function to convert UML text to schema payload with robust error handling
-export function umlToSchema(umlText, universeId) {
-    const entityBlocks = umlText
-        .split(/(?=class\s+|\bentity\s+)/)
-        .map(block => block.trim())
-        .filter(Boolean);
-
-    const schemas = entityBlocks
-        .map(parseEntityBlock)
-        .filter(schema => schema !== null);
-
-    return schemas.map((schema) => ({
-      entityName: schema.entityName,
-      description: `This schema contains details for ${schema.description}`,
-      schemaReadAccess: "PUBLIC",
-      dataReadAccess: "PUBLIC",
-      dataWriteAccess: "PUBLIC",
-      metadataReadAccess: "PUBLIC",
-      metadataWriteAccess: "PUBLIC",
-      universes: universeId.universeId ? [universeId.universeId] : [null],
-      tags: { BLUE: [] },
-      primaryKey: schema.primaryKey,
-      attributes: schema.attributes,
-      execute: "PUBLIC",
-      visibility: "PUBLIC",
-    }));
-}
-
-
-
-// Function to create schema on the server, with error handling for existing schema conflicts
 async function createSchema(schemaObject, token) {
     if (memoryStore.schemas[schemaObject.entityName]) {
         const existingSchemaId = memoryStore.schemas[schemaObject.entityName];
@@ -127,43 +96,36 @@ async function createSchema(schemaObject, token) {
         throw error;
     }
 }
+// Main function to convert UML text to schema payload with robust error handling
+export function umlToSchema(umlText, universeId) {
+    const entityBlocks = umlText
+        .split(/(?=class\s+|\bentity\s+)/)
+        .map(block => block.trim())
+        .filter(Boolean);
 
-// Controller to convert UML to schema and handle schema creation
-// export async function convertUml(req, res) {
-//     const { umlText } = req.body;
-//     const token = req.headers['token'];
-//     const universeId = req.query;
+    const schemas = entityBlocks
+        .map(parseEntityBlock)
+        .filter(schema => schema !== null);
 
-//     if (!umlText) {
-//         return res.status(400).json({ error: 'UML text is required.' });
-//     }
+    return schemas.map((schema) => ({
+      entityName: schema.entityName,
+      description: `This schema contains details for ${schema.description}`,
+      schemaReadAccess: "PUBLIC",
+      dataReadAccess: "PUBLIC",
+      dataWriteAccess: "PUBLIC",
+      metadataReadAccess: "PUBLIC",
+      metadataWriteAccess: "PUBLIC",
+      universes: universeId.universeId ? [universeId.universeId] : [null],
+      tags: { BLUE: [] },
+      primaryKey: schema.primaryKey,
+      attributes: schema.attributes,
+      execute: "PUBLIC",
+      visibility: "PUBLIC",
+    }));
 
-//     try {
-//         const schema = umlToSchema(umlText, universeId);
+}
 
-//         const results = await Promise.allSettled(
-//             schema.map(async (schemaObject) => {
-//                 const result = await createSchema(schemaObject, token);
-//                 return result;
-//             })
-//         );
-
-//         memoryStore.results = results.map((result, index) => ({
-//             status: result.status === 'fulfilled' ? 'success' : 'failed',
-//             name: schema[index].entityName,
-//             schemaId: result.value?.schemaId,
-//             reason: result.reason
-//         }));
-
-//         res.json({ status: 'completed', results: memoryStore.results });
-//     } catch (error) {
-//         res.status(500).json({
-//             error: 'An error occurred while processing the UML.',
-//             details: error.message || error.response?.data || 'Unknown error'
-//         });
-//     }
-// }
-
+//raju
 // Controller to convert UML to schema, create schemas, and handle conflicts
 export async function convertUml(req, res) {
     const { umlText } = req.body;
@@ -208,6 +170,10 @@ export async function convertUml(req, res) {
                 return { status: 'failed', name: schemaName, error: error.message };
             }
         }
+
+        const results = await Promise.all(
+            schemaPayloads.map((schemaObject) => createSchemaWithRetry(schemaObject))
+        );
 
         // Process each schema payload and create schemas
         for (const schemaObject of schemaPayloads) {
