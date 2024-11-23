@@ -83,7 +83,7 @@ router.post("/synth-data/send-uml", async (req, res) => {
   //       "Generation of relationship among entities failed, Please Try again"
   //     );
   //   processFailed = true;
-  // }
+  // } 
 
   if (synthData?.errorMessage) {
     res.status(500).json(synthData);

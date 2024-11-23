@@ -5,7 +5,7 @@ import bqRouter from './routers/bq-generation/BQ.js';
 import routerSynthDataInsertion from './routers/synth-data/synthDataInsertion.js';
 
 const app = e();
-const PORT = 3000;
+const PORT = 3001;
 
 // to handle large payloads for synth data insertion
 app.use(bodyParser.json({ limit: '50mb' }));
